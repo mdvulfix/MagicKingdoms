@@ -1,7 +1,9 @@
 {
-    "name": "App",
+    "name": "Editor",
     "rootNamespace": "",
-    "references": [],
+    "references": [
+        "GUID:4592f32d4c4de464eb4c2b2f624d9b9b"
+    ],
     "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,

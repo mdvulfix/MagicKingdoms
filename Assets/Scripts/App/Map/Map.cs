@@ -7,19 +7,23 @@ namespace App.Map
 {
 
     [RequireComponent(typeof(MeshRenderer))]
+    [RequireComponent(typeof(MeshFilter))]
     public class Map : MonoBehaviour
     {
 
         public int Width => m_Width;
         public int Height => m_Height;
 
-        private GameObject m_Obj;
+        public bool isInitialized => m_isInitialized;
 
+        private GameObject Obj => gameObject;
 
-
+        private MeshRenderer Renderer => m_Renderer != null ? m_Renderer : Obj.GetComponent<MeshRenderer>();
         private MeshRenderer m_Renderer;
+
         private Texture2D m_Texture;
 
+        private INoise Noise => m_Noise != null ? m_Noise : new Perlin();
         private INoise m_Noise;
 
         [SerializeField] private int m_Width = 256;
@@ -30,8 +34,7 @@ namespace App.Map
         [SerializeField] private float m_Persistence = 0.5f;
         [SerializeField] private float m_Lacunarity = 2f;
 
-
-        private float[,] m_Matrix;
+        private bool m_isInitialized;
 
         private MapConfig m_Config;
 
@@ -53,14 +56,7 @@ namespace App.Map
             m_Persistence = m_Config.Persistence;
             m_Lacunarity = m_Config.Lacunarity;
 
-            m_Obj = gameObject;
-            m_Obj.transform.localScale = new Vector3(m_Width, 1, m_Height);
-
-            m_Matrix = m_Noise.GetMatrix(m_Width, m_Height, m_Scale, m_Octaves, m_Persistence, m_Lacunarity, m_Seed);
-
-            m_Renderer = m_Obj.GetComponent<MeshRenderer>();
-            m_Renderer.sharedMaterial.mainTexture = m_Texture;
-
+            m_isInitialized = true;
 
         }
 
@@ -68,10 +64,11 @@ namespace App.Map
         {
             m_Texture = new Texture2D(m_Width, m_Height);
             var colourMap = new Color[m_Width * m_Height];
+            var matrix = Noise.GetMatrix(m_Width, m_Height, m_Scale, m_Octaves, m_Persistence, m_Lacunarity, m_Seed);
 
             for (int y = 0; y < m_Height; y++)
                 for (int x = 0; x < m_Width; x++)
-                    colourMap[y * m_Width + x] = Color.Lerp(Color.black, Color.white, m_Matrix[x, y]);
+                    colourMap[y * m_Width + x] = Color.Lerp(Color.black, Color.white, matrix[x, y]);
 
 
             m_Texture.SetPixels(colourMap);
@@ -82,12 +79,14 @@ namespace App.Map
 
         public void Display()
         {
-            m_Obj.SetActive(true);
+            Renderer.sharedMaterial.mainTexture = m_Texture;
+            Obj.transform.localScale = new Vector3(m_Width, 1, m_Height);
+            Obj.SetActive(true);
         }
 
         public void Close()
         {
-            m_Obj.SetActive(false);
+            Obj.SetActive(false);
         }
 
     }
