@@ -2,6 +2,7 @@ using System;
 using UnityEngine;
 
 using Core.Map;
+using Core;
 
 namespace App.Map
 {
@@ -60,6 +61,7 @@ namespace App.Map
 
         }
 
+        [Button]
         public void Draw()
         {
             m_Texture = new Texture2D(m_Width, m_Height);
