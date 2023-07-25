@@ -1,8 +1,8 @@
 using System;
 using UnityEngine;
 
-using Core.Map;
 using Core;
+using Core.Map;
 
 namespace App.Map
 {

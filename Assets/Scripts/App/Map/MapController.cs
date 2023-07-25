@@ -3,20 +3,16 @@ using UnityEngine;
 
 using Core;
 using Core.Map;
-<<<<<<< Updated upstream
 
 
-namespace App.Map
-{
-    [Serializable]
-=======
+
+
 
 namespace App.Map
 {
 
     [Serializable]
     [Cached]
->>>>>>> Stashed changes
     public class MapController : MonoBehaviour
     {
 
@@ -26,18 +22,6 @@ namespace App.Map
 
         [SerializeField] private Map m_Map;
 
-
-
-
-
-        [Button]
-        public void Generate()
-        {
-
-            Setup();
-            Generate();
-
-        }
 
         private void Setup()
         {
@@ -59,10 +43,6 @@ namespace App.Map
 
 
 
-        public string Button;
-
-
-        [Btn]
         public void Generate()
         {
             m_Map.Draw();

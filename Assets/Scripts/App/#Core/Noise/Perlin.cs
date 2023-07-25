@@ -1,6 +1,5 @@
 using UnityEngine;
 
-
 namespace Core.Map
 {
     public class Perlin : NoiseModel, INoise

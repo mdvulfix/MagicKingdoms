@@ -1,4 +1,4 @@
-namespace Core.Map
+namespace Core
 {
     public interface INoise
     {
