@@ -1,12 +1,13 @@
 using System;
 using UnityEngine;
+using URandom = UnityEngine.Random;
 
 using Core;
 using Core.Map;
 
 namespace App.Map
 {
-
+    [Serializable]
     public class Map : MapModel
     {
 
@@ -24,13 +25,14 @@ namespace App.Map
         private INoise Noise => m_Noise != null ? m_Noise : new Perlin();
         private INoise m_Noise;
 
-        [SerializeField] private int m_Width = 256;
-        [SerializeField] private int m_Height = 256;
-        [SerializeField] private int m_Scale = 1;
-        [SerializeField] private int m_Seed = 0;
-        [SerializeField] private int m_Octaves = 4;
-        [SerializeField] private float m_Persistence = 0.5f;
-        [SerializeField] private float m_Lacunarity = 2f;
+        private int m_Width = 100;
+        private int m_Height = 100;
+        private float m_Scale = 1;
+        private Vector2 m_Offset = Vector2.zero;
+        private int m_Seed = 0;
+        private int m_Octaves = 4;
+        private float m_Persistence = 0.5f;
+        private float m_Lacunarity = 2f;
 
         private MapConfig m_Config;
 
@@ -48,6 +50,7 @@ namespace App.Map
             m_Height = m_Config.Height;
             m_Scale = m_Config.Scale;
             m_Seed = m_Config.Seed;
+            m_Offset = m_Config.Offset;
             m_Octaves = m_Config.Octaves;
             m_Persistence = m_Config.Persistence;
             m_Lacunarity = m_Config.Lacunarity;
@@ -59,15 +62,33 @@ namespace App.Map
         {
             m_Texture = new Texture2D(m_Width, m_Height);
             var colourMap = new Color[m_Width * m_Height];
-            var matrix = Noise.GetMatrix(m_Width, m_Height, m_Scale, m_Octaves, m_Persistence, m_Lacunarity, m_Seed);
+            var matrix = Noise.GetMatrix(m_Width, m_Height, m_Scale, m_Offset, m_Octaves, m_Persistence, m_Lacunarity, m_Seed);
 
             for (int y = 0; y < m_Height; y++)
+            {
                 for (int x = 0; x < m_Width; x++)
-                    colourMap[y * m_Width + x] = Color.Lerp(Color.black, Color.white, matrix[x, y]);
+                {
+                    //var valX = ((float)x) / m_Width * m_Scale + m_Offset.x;
+                    //var valy = ((float)y) / m_Height * m_Scale + m_Offset.y;
+                    var valNoise = Mathf.PerlinNoise(x / m_Scale + m_Offset.x, y / m_Scale + m_Offset.y);
+                    var valRand = URandom.Range((float)x, (float)y);
+                    var color = new Color(valNoise, valNoise, valNoise);
+                    //Debug.Log(color.ToString());
+                    m_Texture.SetPixel(x, y, color);
+                }
+            }
 
 
-            m_Texture.SetPixels(colourMap);
+            m_Texture.filterMode = FilterMode.Point;
+            m_Texture.wrapMode = TextureWrapMode.Clamp;
             m_Texture.Apply();
+
+
+            //colourMap[y * m_Width + x] = Color.Lerp(Color.black, Color.white, matrix[x, y]);
+
+
+
+
 
         }
 
@@ -92,19 +113,21 @@ namespace App.Map
 
         public int Width { get; private set; }
         public int Height { get; private set; }
-        public int Scale { get; private set; }
+        public float Scale { get; private set; }
+        public Vector2 Offset { get; internal set; }
         public int Seed { get; private set; }
         public int Octaves { get; private set; }
         public float Persistence { get; private set; }
         public float Lacunarity { get; private set; }
 
 
-        public MapConfig(INoise noise, int width, int height, int scale, int seed, int octaves, float persistence, float lacunarity)
+        public MapConfig(INoise noise, int width, int height, float scale, Vector2 offset, int seed, int octaves, float persistence, float lacunarity)
         {
             Noise = noise;
             Width = width;
             Height = height;
             Scale = scale;
+            Offset = offset;
             Seed = seed;
             Octaves = octaves;
             Persistence = persistence;

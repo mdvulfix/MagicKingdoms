@@ -12,10 +12,24 @@ namespace App.Map
     {
 
 
+
         [Header("Config")]
         private MapConfig m_Config;
 
-        [SerializeField] private Map m_Map;
+        [SerializeField]
+        private Map m_Map;
+
+        [SerializeField] private int m_Width = 100;
+        [SerializeField] private int m_Height = 100;
+        [SerializeField] private float m_Scale = 1;
+        [SerializeField] private int m_Seed = 0;
+        [SerializeField] private Vector2 m_Offset = Vector2.one;
+        [SerializeField] private int m_Octaves = 4;
+        [SerializeField] private float m_Persistence = 0.5f;
+        [SerializeField] private float m_Lacunarity = 2f;
+
+
+        public bool AutoUpdate;
 
         void Start()
         {
@@ -25,27 +39,21 @@ namespace App.Map
 
         }
 
-        private void Setup()
+
+
+
+        public void Setup()
         {
+            OnValidate();
+
             var noise = new Perlin();
-            var width = 100;
-            var height = 100;
-            var scale = 100;
-            var octaves = 4;
-            var persistence = 0.5f;
-            var lacunarity = 2f;
-            var seed = 0;
-
-            m_Config = new MapConfig(noise, width, height, scale, seed, octaves, persistence, lacunarity);
-
+            m_Config = new MapConfig(noise, m_Width, m_Height, m_Scale, m_Offset, m_Seed, m_Octaves, m_Persistence, m_Lacunarity);
 
             m_Map = m_Map ?? throw new Exception("Map is not assigned!");
             m_Map.Init(m_Config);
         }
 
 
-
-        [Button]
         public void Generate()
         {
             m_Map.Draw();
@@ -54,6 +62,14 @@ namespace App.Map
 
         }
 
+
+
+        public void OnValidate()
+        {
+            if (m_Width < 1) m_Width = 1;
+            if (m_Height < 1) m_Height = 1;
+            if (m_Scale < 0) m_Scale = 0.001f;
+        }
 
 
     }

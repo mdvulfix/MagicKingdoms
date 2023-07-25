@@ -18,7 +18,7 @@ public class EditorDrawer : Editor
 
     public override void OnInspectorGUI()
     {
-        base.OnInspectorGUI();
+        DrawDefaultInspector();
 
         foreach (var attr in GetAtributes())
             attr.Draw();
