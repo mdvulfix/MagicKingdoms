@@ -4,6 +4,7 @@ using System.Linq;
 
 using UnityEngine;
 using Core;
+using System.Collections.Generic;
 
 
 #if UNITY_EDITOR
@@ -19,48 +20,45 @@ public class EditorDrawer : Editor
     {
         base.OnInspectorGUI();
 
-        foreach (var attr in m_Attributes)
-            if (attr is DrawerAttribute)
-                ((DrawerAttribute)attr).Draw(target);
-
+        foreach (var attr in GetAtributes())
+            attr.Draw();
 
     }
 
 
-    private void OnEnable()
+    private IEnumerable<DrawerAttribute> GetAtributes()
     {
-        m_Attributes = GetAtributes();
-
-    }
-
-    private Attribute[] GetAtributes()
-    {
-        var attr = target.GetType()
+        var classAttr = target.GetType()
                          .GetCustomAttributes()
-                         .Where(a => a is DrawerAttribute);
+                         .Where(a => a is DrawerAttribute)
+                         .Cast<DrawerAttribute>();
 
-        var attrMethod = target.GetType()
-                               .GetMethods()
-                               .SelectMany(m => m.GetCustomAttributes())
-                               .Where(a => a is DrawerAttribute);
+        foreach (var a in classAttr)
+            a.Instance = target;
 
-        return attr.Concat(attrMethod).ToArray();
+
+        var methods = target.GetType().GetMethods();
+        var attr = classAttr.ToList();
+
+        foreach (var method in methods)
+        {
+            var methodAttrList = method.GetCustomAttributes()
+                                       .Where(a => a is DrawerAttribute)
+                                       .Cast<DrawerAttribute>();
+
+            foreach (var a in methodAttrList)
+            {
+                a.Instance = target;
+                a.Func = method;
+
+                attr.Add(a);
+            }
+        }
+
+        return attr;
 
     }
 }
 
-public struct AttributeInfo
-{
-    public object Instance { get; private set; }
-    public Attribute Attribute { get; private set; }
-    public Action Action { get; private set; }
-
-    public AttributeInfo(object instance, Attribute attribute, Action action)
-    {
-        Instance = instance;
-        Attribute = attribute;
-        Action = action;
-    }
-}
 
 #endif

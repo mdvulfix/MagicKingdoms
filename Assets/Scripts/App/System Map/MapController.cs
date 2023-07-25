@@ -5,14 +5,9 @@ using Core;
 using Core.Map;
 
 
-
-
-
 namespace App.Map
 {
-
     [Serializable]
-    [Cached]
     public class MapController : MonoBehaviour
     {
 
@@ -22,6 +17,13 @@ namespace App.Map
 
         [SerializeField] private Map m_Map;
 
+        void Start()
+        {
+
+            Setup();
+            Generate();
+
+        }
 
         private void Setup()
         {
@@ -43,10 +45,12 @@ namespace App.Map
 
 
 
+        [Button]
         public void Generate()
         {
             m_Map.Draw();
             m_Map.Display();
+            Debug.Log("Map was generated!");
 
         }
 

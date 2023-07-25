@@ -7,15 +7,12 @@ using Core.Map;
 namespace App.Map
 {
 
-    [RequireComponent(typeof(MeshRenderer))]
-    [RequireComponent(typeof(MeshFilter))]
-    public class Map : MonoBehaviour
+    public class Map : MapModel
     {
 
         public int Width => m_Width;
         public int Height => m_Height;
 
-        public bool isInitialized => m_isInitialized;
 
         private GameObject Obj => gameObject;
 
@@ -35,11 +32,9 @@ namespace App.Map
         [SerializeField] private float m_Persistence = 0.5f;
         [SerializeField] private float m_Lacunarity = 2f;
 
-        private bool m_isInitialized;
-
         private MapConfig m_Config;
 
-        public void Init(params object[] args)
+        public override void Init(params object[] args)
         {
             foreach (var arg in args)
                 if (arg is MapConfig)
@@ -57,12 +52,10 @@ namespace App.Map
             m_Persistence = m_Config.Persistence;
             m_Lacunarity = m_Config.Lacunarity;
 
-            m_isInitialized = true;
-
         }
 
-        [Button]
-        public void Draw()
+
+        public override void Draw()
         {
             m_Texture = new Texture2D(m_Width, m_Height);
             var colourMap = new Color[m_Width * m_Height];
@@ -79,14 +72,14 @@ namespace App.Map
         }
 
 
-        public void Display()
+        public override void Display()
         {
             Renderer.sharedMaterial.mainTexture = m_Texture;
             Obj.transform.localScale = new Vector3(m_Width, 1, m_Height);
             Obj.SetActive(true);
         }
 
-        public void Close()
+        public override void Close()
         {
             Obj.SetActive(false);
         }
