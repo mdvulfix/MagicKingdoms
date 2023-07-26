@@ -19,14 +19,28 @@ namespace App.Map
         [SerializeField]
         private Map m_Map;
 
+
+        [Header("Resolution")]
         [SerializeField] private int m_Width = 100;
         [SerializeField] private int m_Height = 100;
-        [SerializeField] private float m_Scale = 1;
-        [SerializeField] private int m_Seed = 0;
         [SerializeField] private Vector2 m_Offset = Vector2.one;
+
+        [Header("Noise")]
+        [SerializeField] private NoiseModel m_Noise;
+        [SerializeField] private int m_Seed = 0;
+
+        [Range(1, 100)]
+        [SerializeField] private float m_Scale = 1;
+
+        [Range(1, 5)]
         [SerializeField] private int m_Octaves = 4;
+        [Range(0, 1)]
         [SerializeField] private float m_Persistence = 0.5f;
+        [Range(0, 10)]
         [SerializeField] private float m_Lacunarity = 2f;
+
+
+
 
 
         public bool AutoUpdate;
@@ -46,8 +60,8 @@ namespace App.Map
         {
             OnValidate();
 
-            var noise = new Perlin();
-            m_Config = new MapConfig(noise, m_Width, m_Height, m_Scale, m_Offset, m_Seed, m_Octaves, m_Persistence, m_Lacunarity);
+
+            m_Config = new MapConfig((INoise)m_Noise, m_Width, m_Height, m_Scale, m_Offset, m_Seed, m_Octaves, m_Persistence, m_Lacunarity);
 
             m_Map = m_Map ?? throw new Exception("Map is not assigned!");
             m_Map.Init(m_Config);

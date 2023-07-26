@@ -22,8 +22,10 @@ namespace App.Map
 
         private Texture2D m_Texture;
 
-        private INoise Noise => m_Noise != null ? m_Noise : new Perlin();
+        private INoise Noise => m_Noise != null ? m_Noise : (INoise)m_NoiseDefault;
         private INoise m_Noise;
+
+        [SerializeField] private NoiseModel m_NoiseDefault;
 
         private int m_Width = 100;
         private int m_Height = 100;
@@ -61,35 +63,20 @@ namespace App.Map
         public override void Draw()
         {
             m_Texture = new Texture2D(m_Width, m_Height);
-            var colourMap = new Color[m_Width * m_Height];
-            var matrix = Noise.GetMatrix(m_Width, m_Height, m_Scale, m_Offset, m_Octaves, m_Persistence, m_Lacunarity, m_Seed);
+
+
+            var hightMatrix = Noise.GetMatrix2D(m_Width, m_Height, m_Scale, m_Offset, m_Octaves, m_Persistence, m_Lacunarity, m_Seed);
+            var colourMatrix = new Color[m_Width * m_Height];
 
             for (int y = 0; y < m_Height; y++)
-            {
                 for (int x = 0; x < m_Width; x++)
-                {
-                    //var valX = ((float)x) / m_Width * m_Scale + m_Offset.x;
-                    //var valy = ((float)y) / m_Height * m_Scale + m_Offset.y;
-                    var valNoise = Mathf.PerlinNoise(x / m_Scale + m_Offset.x, y / m_Scale + m_Offset.y);
-                    var valRand = URandom.Range((float)x, (float)y);
-                    var color = new Color(valNoise, valNoise, valNoise);
-                    //Debug.Log(color.ToString());
-                    m_Texture.SetPixel(x, y, color);
-                }
-            }
+                    colourMatrix[y * m_Width + x] = Color.Lerp(Color.black, Color.white, hightMatrix[x, y]);
 
 
+            m_Texture.SetPixels(colourMatrix);
+            m_Texture.Apply();
             m_Texture.filterMode = FilterMode.Point;
             m_Texture.wrapMode = TextureWrapMode.Clamp;
-            m_Texture.Apply();
-
-
-            //colourMap[y * m_Width + x] = Color.Lerp(Color.black, Color.white, matrix[x, y]);
-
-
-
-
-
         }
 
 

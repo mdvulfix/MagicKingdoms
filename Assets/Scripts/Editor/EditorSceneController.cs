@@ -27,12 +27,17 @@ public class EditorSceneController : Editor
 
     }
 
+    private void OnEnable()
+    {
+        Generate();
+    }
+
+
     private void Generate()
     {
         m_Controller.Setup();
         m_Controller.Generate();
     }
-
 
 }
 
