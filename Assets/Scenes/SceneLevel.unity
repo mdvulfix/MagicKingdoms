@@ -171,10 +171,10 @@ MonoBehaviour:
   m_Map: {fileID: 7545315972495781391}
   m_Width: 100
   m_Height: 100
-  m_Offset: {x: 1.01, y: -7.49}
+  m_Offset: {x: 1.24, y: 1.15}
   m_Noise: {fileID: 11400000, guid: 5ece09a9bab35ec4881a5327aecf1f4a, type: 2}
-  m_Seed: 0
-  m_Scale: 18.8
+  m_Seed: -32
+  m_Scale: 52.8
   m_Octaves: 4
   m_Persistence: 0.5
   m_Lacunarity: 2

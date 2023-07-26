@@ -30,20 +30,20 @@ namespace App.Map
         [SerializeField] private int m_Seed = 0;
 
         [Range(1, 100)]
-        [SerializeField] private float m_Scale = 1;
+        [SerializeField] private float m_Scale = 20f;
 
-        [Range(1, 5)]
+        [Range(1, 6)]
         [SerializeField] private int m_Octaves = 4;
         [Range(0, 1)]
         [SerializeField] private float m_Persistence = 0.5f;
-        [Range(0, 10)]
+        [Range(0, 4)]
         [SerializeField] private float m_Lacunarity = 2f;
 
 
 
 
 
-        public bool AutoUpdate;
+        public bool AutoUpdate = true;
 
         void Start()
         {

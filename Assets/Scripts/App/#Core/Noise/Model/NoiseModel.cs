@@ -22,13 +22,14 @@ namespace Core
 
                     var amplitude = 1.0f;
                     var frequency = 1.0f;
+                    var contrast = 0.15f;
 
                     for (int i = 0; i < octave; i++)
                     {
-                        xValue = (float)x / scale * frequency;
-                        yValue = (float)y / scale * frequency;
+                        xValue = (x - width / 2) / scale * frequency;
+                        yValue = (y - height / 2) / scale * frequency;
 
-                        noiseValue += Noise2D(xValue, yValue) * amplitude;
+                        noiseValue += (Noise2D(xValue, yValue) + contrast) * amplitude;
 
                         amplitude *= persistence;
                         frequency *= lacunarity;
