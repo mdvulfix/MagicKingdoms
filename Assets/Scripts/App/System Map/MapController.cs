@@ -16,8 +16,9 @@ namespace App.Map
         [Header("Config")]
         private MapConfig m_Config;
 
-        [SerializeField]
-        private Map m_Map;
+        [Header("Map")]
+        [SerializeField] private Map m_Map;
+        [SerializeField] private MapDisplayMode m_DisplayMode = MapDisplayMode.Noise;
 
 
         [Header("Resolution")]
@@ -71,9 +72,7 @@ namespace App.Map
         public void Generate()
         {
             m_Map.Draw();
-            m_Map.Display();
-            Debug.Log("Map was generated!");
-
+            m_Map.Display(m_DisplayMode);
         }
 
 

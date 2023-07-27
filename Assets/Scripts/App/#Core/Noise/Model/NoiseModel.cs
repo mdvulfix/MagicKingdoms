@@ -25,7 +25,6 @@ namespace Core
             }
 
 
-
             for (int y = 0; y < height; y++)
             {
                 for (int x = 0; x < width; x++)
@@ -40,8 +39,8 @@ namespace Core
 
                     for (int i = 0; i < octave; i++)
                     {
-                        xValue = (x - width / 2) / scale * frequency + octaveOffset[i].x;
-                        yValue = (y - height / 2) / scale * frequency + octaveOffset[i].y;
+                        xValue = ((x - width / 2) / scale + octaveOffset[i].x) * frequency;
+                        yValue = ((y - height / 2) / scale + octaveOffset[i].y) * frequency;
 
                         noiseValue += (Noise2D(xValue, yValue) + contrast) * amplitude;
 

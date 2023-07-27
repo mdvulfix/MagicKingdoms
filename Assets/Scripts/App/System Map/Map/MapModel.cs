@@ -3,14 +3,10 @@ using UnityEngine;
 
 namespace Core.Map
 {
-    [Serializable]
-    [RequireComponent(typeof(MeshRenderer))]
-    [RequireComponent(typeof(MeshFilter))]
     public abstract class MapModel : MonoBehaviour
     {
 
         public bool isInitialized => m_isInitialized;
-
 
         private bool m_isInitialized;
 
@@ -21,10 +17,18 @@ namespace Core.Map
 
 
         public abstract void Draw();
-        public abstract void Display();
+        public abstract void Display(MapDisplayMode mode);
         public abstract void Close();
 
 
+    }
+
+    public enum MapDisplayMode
+    {
+        None,
+        Noise,
+        Color,
+        Terrain
     }
 
     public struct MapConfig
@@ -33,28 +37,26 @@ namespace Core.Map
 
         public int Width { get; private set; }
         public int Height { get; private set; }
-        public int Scale { get; private set; }
+        public float Scale { get; private set; }
+        public Vector2 Offset { get; internal set; }
         public int Seed { get; private set; }
         public int Octaves { get; private set; }
         public float Persistence { get; private set; }
         public float Lacunarity { get; private set; }
 
 
-        public MapConfig(INoise noise, int width, int height, int scale, int seed, int octaves, float persistence, float lacunarity)
+        public MapConfig(INoise noise, int width, int height, float scale, Vector2 offset, int seed, int octaves, float persistence, float lacunarity)
         {
             Noise = noise;
             Width = width;
             Height = height;
             Scale = scale;
+            Offset = offset;
             Seed = seed;
             Octaves = octaves;
             Persistence = persistence;
             Lacunarity = lacunarity;
         }
-
-
-
-
     }
 
 
