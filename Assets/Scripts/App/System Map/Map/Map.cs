@@ -11,8 +11,16 @@ namespace App.Map
 
 
     [Serializable]
+    [ExecuteAlways]
     public class Map : MapModel
     {
+
+        [SerializeField] private MapDisplayMode m_DisplayMode = MapDisplayMode.Noise;
+        private MapDisplayMode DisplayMode =>
+            m_DisplayMode ==
+            MapDisplayMode.None ?
+            MapDisplayMode.Noise :
+            m_DisplayMode;
 
         public int Width => m_Width;
         public int Height => m_Height;
@@ -25,21 +33,15 @@ namespace App.Map
         private INoise Noise => m_Noise != null ? m_Noise : (INoise)m_NoiseDefault;
         private INoise m_Noise;
 
+        [SerializeField] private AnimationCurve m_Affector;
+
 
         [Header("Terrain")]
         [SerializeField] private Terrain m_Terrarian;
         private Terrain Terrarian => m_Terrarian != null ? m_Terrarian : Obj.GetComponentInChildren<Terrain>();
 
-        public float m_landScapeSize = 100;
-
-        public int m_heightMapSize = 513;
-        public float m_terrainHeight = 20;
-        public float[,] m_terrainHeights;
 
 
-        private int m_Width = 256;
-        private int m_Height = 256;
-        private int m_Depth = 20;
 
 
         [Header("Texture")]
@@ -48,16 +50,28 @@ namespace App.Map
         private Texture2D m_Texture;
 
 
+        [Header("Resolution")]
+        [SerializeField] private int m_Width = 100;
+        [SerializeField] private int m_Height = 100;
+        [SerializeField] private int m_Resolution;
+        [Range(0, 10)]
+        [SerializeField] private float m_Depth = 1;
 
 
+        [SerializeField] private Vector2 m_Offset = Vector2.one;
 
+        [Header("Noise")]
+        [SerializeField] private int m_Seed = 0;
 
-        private float m_Scale = 20f;
-        private Vector2 m_Offset = Vector2.zero;
-        private int m_Seed = 0;
-        private int m_Octaves = 4;
-        private float m_Persistence = 0.5f;
-        private float m_Lacunarity = 2f;
+        [Range(1, 100)]
+        [SerializeField] private float m_Scale = 20f;
+
+        [Range(1, 6)]
+        [SerializeField] private int m_Octaves = 4;
+        [Range(0, 1)]
+        [SerializeField] private float m_Persistence = 0.5f;
+        [Range(0, 4)]
+        [SerializeField] private float m_Lacunarity = 2f;
 
 
         private MapConfig m_Config;
@@ -105,7 +119,6 @@ namespace App.Map
             m_Texture.wrapMode = TextureWrapMode.Clamp;
         }
 
-
         public override void Display(MapDisplayMode mode)
         {
 
@@ -132,6 +145,14 @@ namespace App.Map
             Obj.SetActive(false);
         }
 
+        public void SetDisplayMode(MapDisplayMode mode)
+        {
+            m_DisplayMode = mode;
+
+        }
+
+
+
         private void SetNoiseMap()
         {
             Terrarian?.gameObject.SetActive(false);
@@ -155,9 +176,12 @@ namespace App.Map
             Renderer.enabled = false;
 
             var terrainData = new TerrainData();
-            terrainData.heightmapResolution = m_Width + 1;
-            terrainData.size = new Vector3(m_Width, m_Depth, m_Height);
-            terrainData.SetHeights(0, 0, GenHights());
+            m_Resolution = terrainData.heightmapResolution;
+
+            terrainData.size = new Vector3(m_Width, 100, m_Height);
+            terrainData.SetHeights(0, 0, GetHights());
+
+
 
             if (m_Terrarian == null)
             {
@@ -178,25 +202,26 @@ namespace App.Map
         }
 
 
-        private float[,] GenHights()
+        private float[,] GetHights()
         {
-            var heights = new float[m_Width, m_Height];
-            for (int y = 0; y < m_Height; y++)
-                for (int x = 0; x < m_Width; x++)
-                    heights[x, y] = CalcHights(x, y);
+
+
+            var heights = Noise.GetMatrix2D(m_Resolution, m_Resolution, m_Scale, m_Offset, m_Octaves, m_Persistence, m_Lacunarity, m_Seed);
+
+
+            for (int x = 0; x < m_Resolution; x++)
+                for (int y = 0; y < m_Resolution; y++)
+                    heights[x, y] = heights[x, y] * m_Depth;
 
             return heights;
         }
 
 
-
-
-        private float CalcHights(int x, int y)
+        private void OnValidate()
         {
-            var xVal = (float)x / m_Width * m_Scale;
-            var yVal = (float)x / m_Height * m_Scale;
+            Draw();
+            Display(m_DisplayMode);
 
-            return Mathf.PerlinNoise(xVal, yVal);
         }
 
 
