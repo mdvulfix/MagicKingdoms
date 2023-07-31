@@ -19,6 +19,11 @@ namespace App.Map
         [Header("Map")]
         [SerializeField] private Map m_Map;
         [SerializeField] private MapDisplayMode m_DisplayMode = MapDisplayMode.Noise;
+        private MapDisplayMode DisplayMode =>
+            m_DisplayMode ==
+            MapDisplayMode.None ?
+            MapDisplayMode.Noise :
+            m_DisplayMode;
 
 
         [Header("Resolution")]
@@ -59,7 +64,7 @@ namespace App.Map
 
         public void Setup()
         {
-            OnValidate();
+            //OnValidate();
 
 
             m_Config = new MapConfig((INoise)m_Noise, m_Width, m_Height, m_Scale, m_Offset, m_Seed, m_Octaves, m_Persistence, m_Lacunarity);
@@ -71,7 +76,7 @@ namespace App.Map
 
         public void Generate()
         {
-            m_Map.Draw();
+            m_Map.DrawTexture();
             m_Map.Display(m_DisplayMode);
         }
 

@@ -8,25 +8,20 @@ using Core.Map;
 namespace App.Map
 {
 
-
-
     [Serializable]
-    [ExecuteAlways]
+    [RequireComponent(typeof(MeshRenderer))]
     public class Map : MapModel
     {
-
-        [SerializeField] private MapDisplayMode m_DisplayMode = MapDisplayMode.Noise;
-        private MapDisplayMode DisplayMode =>
-            m_DisplayMode ==
-            MapDisplayMode.None ?
-            MapDisplayMode.Noise :
-            m_DisplayMode;
 
         public int Width => m_Width;
         public int Height => m_Height;
 
+        public GameObject Obj => gameObject;
 
-        private GameObject Obj => gameObject;
+
+        [Header("Terrain")]
+        [SerializeField] private TerrainInfo[] m_Regions;
+
 
         [Header("Noise")]
         [SerializeField] private NoiseModel m_NoiseDefault;
@@ -35,43 +30,19 @@ namespace App.Map
 
         [SerializeField] private AnimationCurve m_Affector;
 
-
-        [Header("Terrain")]
-        [SerializeField] private Terrain m_Terrarian;
-        private Terrain Terrarian => m_Terrarian != null ? m_Terrarian : Obj.GetComponentInChildren<Terrain>();
-
-
-
-
+        private int m_Width = 100;
+        private int m_Height = 100;
+        private Vector2 m_Offset;
+        private int m_Seed;
+        private float m_Scale;
+        private int m_Octaves;
+        private float m_Persistence;
+        private float m_Lacunarity;
 
         [Header("Texture")]
         [SerializeField] private MeshRenderer m_Renderer;
         private MeshRenderer Renderer => m_Renderer != null ? m_Renderer : Obj.GetComponent<MeshRenderer>();
         private Texture2D m_Texture;
-
-
-        [Header("Resolution")]
-        [SerializeField] private int m_Width = 100;
-        [SerializeField] private int m_Height = 100;
-        [SerializeField] private int m_Resolution;
-        [Range(0, 10)]
-        [SerializeField] private float m_Depth = 1;
-
-
-        [SerializeField] private Vector2 m_Offset = Vector2.one;
-
-        [Header("Noise")]
-        [SerializeField] private int m_Seed = 0;
-
-        [Range(1, 100)]
-        [SerializeField] private float m_Scale = 20f;
-
-        [Range(1, 6)]
-        [SerializeField] private int m_Octaves = 4;
-        [Range(0, 1)]
-        [SerializeField] private float m_Persistence = 0.5f;
-        [Range(0, 4)]
-        [SerializeField] private float m_Lacunarity = 2f;
 
 
         private MapConfig m_Config;
@@ -98,7 +69,7 @@ namespace App.Map
         }
 
 
-        public override void Draw()
+        public override void DrawTexture()
         {
             m_Texture = new Texture2D(m_Width, m_Height);
 
@@ -106,12 +77,9 @@ namespace App.Map
             var colourMatrix = new Color[m_Width * m_Height];
 
             for (int y = 0; y < m_Height; y++)
-            {
                 for (int x = 0; x < m_Width; x++)
-                {
                     colourMatrix[y * m_Width + x] = Color.Lerp(Color.black, Color.white, noiseHeights[x, y]);
-                }
-            }
+
 
             m_Texture.SetPixels(colourMatrix);
             m_Texture.Apply();
@@ -125,15 +93,15 @@ namespace App.Map
             switch (mode)
             {
                 case MapDisplayMode.Noise:
-                    SetNoiseMap();
+                    GenerateNoiseMap();
                     break;
 
                 case MapDisplayMode.Color:
-                    SetColor();
+                    GenerateColorMap();
                     break;
 
                 case MapDisplayMode.Terrain:
-                    SetMapColorTerrarian();
+                    GenerateMesh();
                     break;
             }
 
@@ -145,36 +113,69 @@ namespace App.Map
             Obj.SetActive(false);
         }
 
-        public void SetDisplayMode(MapDisplayMode mode)
+        private void GenerateNoiseMap()
         {
-            m_DisplayMode = mode;
 
-        }
+            m_Texture = new Texture2D(m_Width, m_Height);
+
+            var noiseHeights = Noise.GetMatrix2D(m_Width, m_Height, m_Scale, m_Offset, m_Octaves, m_Persistence, m_Lacunarity, m_Seed);
+            var colourMatrix = new Color[m_Width * m_Height];
+
+            for (int y = 0; y < m_Height; y++)
+                for (int x = 0; x < m_Width; x++)
+                    colourMatrix[y * m_Width + x] = Color.Lerp(Color.black, Color.white, noiseHeights[x, y]);
 
 
+            m_Texture.SetPixels(colourMatrix);
+            m_Texture.Apply();
+            m_Texture.filterMode = FilterMode.Point;
+            m_Texture.wrapMode = TextureWrapMode.Clamp;
 
-        private void SetNoiseMap()
-        {
-            Terrarian?.gameObject.SetActive(false);
 
             Renderer.sharedMaterial.mainTexture = m_Texture;
             Obj.transform.localScale = new Vector3(m_Width, 1, m_Height);
             Renderer.enabled = true;
         }
 
-        private void SetColor()
+        private void GenerateColorMap()
         {
-            Terrarian?.gameObject.SetActive(false);
+
+            m_Texture = new Texture2D(m_Width, m_Height);
+
+            var noiseHeights = Noise.GetMatrix2D(m_Width, m_Height, m_Scale, m_Offset, m_Octaves, m_Persistence, m_Lacunarity, m_Seed);
+            var colourMatrix = new Color[m_Width * m_Height];
+
+            for (int y = 0; y < m_Height; y++)
+            {
+                for (int x = 0; x < m_Width; x++)
+                {
+                    foreach (var r in m_Regions)
+                    {
+                        if (noiseHeights[x, y] <= r.Height)
+                        {
+                            colourMatrix[y * m_Width + x] = r.Color;
+                            break;
+                        }
+                    }
+                }
+            }
+
+            m_Texture.SetPixels(colourMatrix);
+            m_Texture.Apply();
+            m_Texture.filterMode = FilterMode.Point;
+            m_Texture.wrapMode = TextureWrapMode.Clamp;
 
             Renderer.sharedMaterial.mainTexture = m_Texture;
             Obj.transform.localScale = new Vector3(m_Width, 1, m_Height);
             Renderer.enabled = true;
         }
 
-        private void SetMapColorTerrarian()
+        private void GenerateMesh()
         {
             Renderer.enabled = false;
 
+
+            /*
             var terrainData = new TerrainData();
             m_Resolution = terrainData.heightmapResolution;
 
@@ -194,37 +195,29 @@ namespace App.Map
 
             Terrarian.gameObject.SetActive(true);
 
-
+            */
             //m_terrainHeights = new float[m_heightMapSize, m_heightMapSize];
 
-
-
         }
 
 
-        private float[,] GetHights()
+
+    }
+
+
+    [Serializable]
+    public struct TerrainInfo
+    {
+        public string Label;
+        public float Height;
+        public Color Color;
+
+        public TerrainInfo(string label, float height, Color color)
         {
-
-
-            var heights = Noise.GetMatrix2D(m_Resolution, m_Resolution, m_Scale, m_Offset, m_Octaves, m_Persistence, m_Lacunarity, m_Seed);
-
-
-            for (int x = 0; x < m_Resolution; x++)
-                for (int y = 0; y < m_Resolution; y++)
-                    heights[x, y] = heights[x, y] * m_Depth;
-
-            return heights;
+            Label = label;
+            Height = height;
+            Color = color;
         }
-
-
-        private void OnValidate()
-        {
-            Draw();
-            Display(m_DisplayMode);
-
-        }
-
-
     }
 
 }

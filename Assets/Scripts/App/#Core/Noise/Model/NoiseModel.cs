@@ -24,6 +24,10 @@ namespace Core
                 octaveOffset[i] = new Vector2(xOffset, yOffset);
             }
 
+            var maxNoiseHeight = float.MinValue;
+            var minNoiseHeight = float.MaxValue;
+
+
 
             for (int y = 0; y < height; y++)
             {
@@ -31,32 +35,39 @@ namespace Core
                 {
                     var xValue = 0.0f;
                     var yValue = 0.0f;
-                    var noiseValue = 0.0f;
+                    var noiseHeight = 0.0f;
 
                     var amplitude = 1.0f;
                     var frequency = 1.0f;
-                    var contrast = 0.15f;
+
 
                     for (int i = 0; i < octave; i++)
                     {
                         xValue = ((x - width / 2) / scale + octaveOffset[i].x) * frequency;
                         yValue = ((y - height / 2) / scale + octaveOffset[i].y) * frequency;
 
-                        noiseValue += (Noise2D(xValue, yValue) + contrast) * amplitude;
+                        noiseHeight += (Noise2D(xValue, yValue) * 2 - 1) * amplitude;
 
                         amplitude *= persistence;
                         frequency *= lacunarity;
                     }
 
+                    if (noiseHeight > maxNoiseHeight)
+                        maxNoiseHeight = noiseHeight;
+                    else if (noiseHeight < minNoiseHeight)
+                        minNoiseHeight = noiseHeight;
 
-                    matrix[x, y] = noiseValue;
+                    matrix[x, y] = noiseHeight;
                 }
             }
+
+            for (int y = 0; y < height; y++)
+                for (int x = 0; x < width; x++)
+                    matrix[x, y] = Mathf.InverseLerp(minNoiseHeight, maxNoiseHeight, matrix[x, y]);
 
 
             return matrix;
         }
-
 
 
         protected virtual float Noise2D(float x, float y) { return 0.0f; }

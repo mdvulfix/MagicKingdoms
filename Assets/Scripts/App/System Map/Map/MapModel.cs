@@ -16,7 +16,7 @@ namespace Core.Map
             => m_isInitialized = true;
 
 
-        public abstract void Draw();
+        public abstract void DrawTexture();
         public abstract void Display(MapDisplayMode mode);
         public abstract void Close();
 
