@@ -35,23 +35,22 @@ namespace Core.Map
     {
         public INoise Noise { get; private set; }
 
-        public int Width { get; private set; }
-        public int Height { get; private set; }
-        public float Scale { get; private set; }
+        public Vector2Int Size { get; internal set; }
         public Vector2 Offset { get; internal set; }
+        public float Scale { get; private set; }
+
         public int Seed { get; private set; }
         public int Octaves { get; private set; }
         public float Persistence { get; private set; }
         public float Lacunarity { get; private set; }
 
 
-        public MapConfig(INoise noise, int width, int height, float scale, Vector2 offset, int seed, int octaves, float persistence, float lacunarity)
+        public MapConfig(INoise noise, Vector2Int size, Vector2 offset, float scale, int seed, int octaves, float persistence, float lacunarity)
         {
             Noise = noise;
-            Width = width;
-            Height = height;
-            Scale = scale;
+            Size = size;
             Offset = offset;
+            Scale = scale;
             Seed = seed;
             Octaves = octaves;
             Persistence = persistence;

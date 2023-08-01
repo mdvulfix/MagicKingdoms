@@ -27,8 +27,7 @@ namespace App.Map
 
 
         [Header("Resolution")]
-        [SerializeField] private int m_Width = 100;
-        [SerializeField] private int m_Height = 100;
+        [SerializeField] private Vector2Int m_Size;
         [SerializeField] private Vector2 m_Offset = Vector2.one;
 
         [Header("Noise")]
@@ -51,41 +50,28 @@ namespace App.Map
 
         public bool AutoUpdate = true;
 
-        void Start()
-        {
-
-            Setup();
-            Generate();
-
-        }
-
-
-
 
         public void Setup()
         {
             //OnValidate();
 
-
-            m_Config = new MapConfig((INoise)m_Noise, m_Width, m_Height, m_Scale, m_Offset, m_Seed, m_Octaves, m_Persistence, m_Lacunarity);
+            m_Config = new MapConfig((INoise)m_Noise, m_Size, m_Offset, m_Scale, m_Seed, m_Octaves, m_Persistence, m_Lacunarity);
 
             m_Map = m_Map ?? throw new Exception("Map is not assigned!");
             m_Map.Init(m_Config);
         }
 
 
-        public void Generate()
-        {
-            m_Map.DrawTexture();
-            m_Map.Display(m_DisplayMode);
-        }
+        public void MapDisplay()
+            => m_Map.Display(m_DisplayMode);
+
 
 
 
         public void OnValidate()
         {
-            if (m_Width < 1) m_Width = 1;
-            if (m_Height < 1) m_Height = 1;
+            if (m_Size.x < 1) m_Size.x = 1;
+            if (m_Size.y < 1) m_Size.y = 1;
             if (m_Octaves < 1) m_Octaves = 1;
             if (m_Scale < 0) m_Scale = 0.001f;
 

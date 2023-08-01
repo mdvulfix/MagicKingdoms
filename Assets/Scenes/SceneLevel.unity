@@ -38,7 +38,7 @@ RenderSettings:
   m_ReflectionIntensity: 1
   m_CustomReflection: {fileID: 0}
   m_Sun: {fileID: 705507994}
-  m_IndirectSpecularColor: {r: 0.44657826, g: 0.49641263, b: 0.57481676, a: 1}
+  m_IndirectSpecularColor: {r: 0.44657844, g: 0.49641222, b: 0.57481694, a: 1}
   m_UseRadianceAmbientProbe: 0
 --- !u!157 &3
 LightmapSettings:
@@ -512,12 +512,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   m_Map: {fileID: 1397877692}
   m_DisplayMode: 2
-  m_Width: 100
-  m_Height: 100
-  m_Offset: {x: -8.27, y: 0.8}
+  m_Size: {x: 100, y: 100}
+  m_Offset: {x: -13.87, y: 0.8}
   m_Noise: {fileID: 11400000, guid: 5ece09a9bab35ec4881a5327aecf1f4a, type: 2}
   m_Seed: 0
-  m_Scale: 30
+  m_Scale: 20.5
   m_Octaves: 4
   m_Persistence: 0.5
   m_Lacunarity: 2

@@ -19,24 +19,24 @@ public class EditorSceneController : Editor
         var isUpdate = DrawDefaultInspector();
 
         if (m_Controller.AutoUpdate && isUpdate)
-            Generate();
+            MapDisplay();
 
         if (GUILayout.Button("Generate"))
-            Generate();
+            MapDisplay();
 
 
     }
 
     private void OnEnable()
     {
-        Generate();
+        MapDisplay();
     }
 
 
-    private void Generate()
+    private void MapDisplay()
     {
         m_Controller.Setup();
-        m_Controller.Generate();
+        m_Controller.MapDisplay();
     }
 
 }

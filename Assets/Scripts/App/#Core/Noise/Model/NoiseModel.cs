@@ -7,9 +7,9 @@ namespace Core
     public abstract class NoiseModel : ScriptableObject
     {
 
-        public virtual float[,] GetMatrix2D(int width, int height, float scale, Vector2 offset, int octave, float persistence, float lacunarity, int seed)
+        public virtual float[,] GetMatrix2D(Vector2Int size, Vector2 offset, float scale, int octave, float persistence, float lacunarity, int seed)
         {
-            float[,] matrix = new float[width, height];
+            float[,] matrix = new float[size.x, size.y];
 
 
             var random = new System.Random(seed);
@@ -24,18 +24,18 @@ namespace Core
                 octaveOffset[i] = new Vector2(xOffset, yOffset);
             }
 
-            var maxNoiseHeight = float.MinValue;
-            var minNoiseHeight = float.MaxValue;
+            var minHeight = float.MaxValue;
+            var maxHeight = float.MinValue;
 
 
 
-            for (int y = 0; y < height; y++)
+            for (int y = 0; y < size.y; y++)
             {
-                for (int x = 0; x < width; x++)
+                for (int x = 0; x < size.x; x++)
                 {
-                    var xValue = 0.0f;
-                    var yValue = 0.0f;
-                    var noiseHeight = 0.0f;
+                    var xCoord = 0.0f;
+                    var yCoord = 0.0f;
+                    var height = 0.0f;
 
                     var amplitude = 1.0f;
                     var frequency = 1.0f;
@@ -43,27 +43,28 @@ namespace Core
 
                     for (int i = 0; i < octave; i++)
                     {
-                        xValue = ((x - width / 2) / scale + octaveOffset[i].x) * frequency;
-                        yValue = ((y - height / 2) / scale + octaveOffset[i].y) * frequency;
+                        xCoord = (x - size.x / 2) / scale * frequency + octaveOffset[i].x;
+                        yCoord = (y - size.y / 2) / scale * frequency + octaveOffset[i].y;
 
-                        noiseHeight += (Noise2D(xValue, yValue) * 2 - 1) * amplitude;
+                        height += (Noise2D(xCoord, yCoord) * 2 - 1) * amplitude;
 
                         amplitude *= persistence;
                         frequency *= lacunarity;
                     }
 
-                    if (noiseHeight > maxNoiseHeight)
-                        maxNoiseHeight = noiseHeight;
-                    else if (noiseHeight < minNoiseHeight)
-                        minNoiseHeight = noiseHeight;
+                    if (height > maxHeight)
+                        maxHeight = height;
+                    else if (height < minHeight)
+                        minHeight = height;
 
-                    matrix[x, y] = noiseHeight;
+
+                    matrix[x, y] = height;
                 }
             }
 
-            for (int y = 0; y < height; y++)
-                for (int x = 0; x < width; x++)
-                    matrix[x, y] = Mathf.InverseLerp(minNoiseHeight, maxNoiseHeight, matrix[x, y]);
+            for (int y = 0; y < size.y; y++)
+                for (int x = 0; x < size.x; x++)
+                    matrix[x, y] = Mathf.InverseLerp(minHeight, maxHeight, matrix[x, y]);
 
 
             return matrix;
@@ -75,14 +76,3 @@ namespace Core
         protected virtual float Noise4D(float x, float y, float z, float a) { return 0.0f; }
     }
 }
-
-/*
-Vector2 v3 = new Vector3(width, width);
-float val = 0;
-for (int i = 0; i < octaves; i++)
-{
-    val += Noise(v3.x, v3.y) / scale * amplitude;
-    v3 *= lacunarity;
-    amplitude *= persistence;
-}
-*/
