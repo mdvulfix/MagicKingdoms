@@ -5,6 +5,7 @@ using URandom = UnityEngine.Random;
 
 using Core;
 using Core.Map;
+using System.Collections.Generic;
 
 namespace App.Map
 {
@@ -19,8 +20,8 @@ namespace App.Map
         [Header("Terrain")]
 
 
-        [SerializeField] private MeshFilter m_Filter;
-        private MeshFilter Filter => m_Filter != null ? m_Filter : Obj.GetComponent<MeshFilter>();
+        [SerializeField] private MeshFilter m_MapMeshFilter;
+        private MeshFilter MapMeshFilter => m_MapMeshFilter != null ? m_MapMeshFilter : Obj.GetComponent<MeshFilter>();
 
 
         private Vector3[] m_Vertices;
@@ -28,11 +29,11 @@ namespace App.Map
         private Vector2[] m_UVs;
 
         [SerializeField] private RegionInfo[] m_Regions;
-        [SerializeField] private Color m_Water;
-        [SerializeField] private Color m_Sand;
-        [SerializeField] private Color m_Grass;
-        [SerializeField] private Color m_Rock;
-        [SerializeField] private Color m_Ice;
+        [SerializeField] private Color m_Water = Color.red;
+        [SerializeField] private Color m_Sand = Color.red;
+        [SerializeField] private Color m_Grass = Color.red;
+        [SerializeField] private Color m_Rock = Color.red;
+        [SerializeField] private Color m_Ice = Color.red;
 
 
         [Header("Noise")]
@@ -41,6 +42,7 @@ namespace App.Map
         private INoise m_Noise;
 
         [SerializeField] private AnimationCurve m_Affector;
+        [SerializeField] private float m_HeightMultiplier;
 
 
         private Vector2Int m_Size;
@@ -52,8 +54,8 @@ namespace App.Map
         private float m_Lacunarity;
 
         [Header("Texture")]
-        [SerializeField] private MeshRenderer m_Renderer;
-        private MeshRenderer Renderer => m_Renderer != null ? m_Renderer : Obj.GetComponent<MeshRenderer>();
+        [SerializeField] private MeshRenderer m_MapMeshRenderer;
+        private MeshRenderer MapMeshRenderer => m_MapMeshRenderer != null ? m_MapMeshRenderer : Obj.GetComponent<MeshRenderer>();
         private Texture2D m_Texture;
 
 
@@ -76,6 +78,7 @@ namespace App.Map
             m_Octaves = m_Config.Octaves;
             m_Persistence = m_Config.Persistence;
             m_Lacunarity = m_Config.Lacunarity;
+
 
             m_Regions = new RegionInfo[]
             {
@@ -124,7 +127,6 @@ namespace App.Map
 
                 case MapDisplayMode.Terrain:
                     GenerateMesh();
-                    GenerateNoiseMap();
                     break;
             }
 
@@ -139,35 +141,48 @@ namespace App.Map
         private void GenerateNoiseMap()
         {
 
+            MapMeshRenderer.enabled = true;
+
+            var heightMap = Noise.GetMatrix2D(m_Size, m_Offset, m_Scale, m_Octaves, m_Persistence, m_Lacunarity, m_Seed);
+
+            var mesh = MeshHandler.CreateMesh(heightMap, m_HeightMultiplier);
+            MapMeshFilter.sharedMesh?.Clear();
+            MapMeshFilter.sharedMesh = mesh;
+
 
             m_Texture = new Texture2D(m_Size.x, m_Size.y);
-
-            var noiseHeights = Noise.GetMatrix2D(m_Size, m_Offset, m_Scale, m_Octaves, m_Persistence, m_Lacunarity, m_Seed);
-            var colourMatrix = new Color[m_Size.x * m_Size.y];
+            var colorMap = new Color[m_Size.x * m_Size.y];
 
             for (int y = 0; y < m_Size.y; y++)
                 for (int x = 0; x < m_Size.x; x++)
-                    colourMatrix[y * m_Size.x + x] = Color.Lerp(Color.black, Color.white, noiseHeights[x, y]);
+                    colorMap[y * m_Size.x + x] = Color.Lerp(Color.black, Color.white, heightMap[x, y]);
 
 
-            m_Texture.SetPixels(colourMatrix);
+            m_Texture.SetPixels(colorMap);
             m_Texture.Apply();
             m_Texture.filterMode = FilterMode.Point;
             m_Texture.wrapMode = TextureWrapMode.Clamp;
 
 
-            Renderer.sharedMaterial.mainTexture = m_Texture;
-            Obj.transform.localScale = new Vector3(m_Size.x, 1, m_Size.y);
-            Renderer.enabled = true;
+            MapMeshRenderer.sharedMaterial.mainTexture = m_Texture;
+            //Obj.transform.localScale = new Vector3(m_Size.x, 1, m_Size.y);
+            MapMeshRenderer.enabled = true;
         }
 
         private void GenerateColorMap()
         {
 
-            m_Texture = new Texture2D(m_Size.x, m_Size.y);
+            MapMeshRenderer.enabled = true;
 
-            var noiseHeights = Noise.GetMatrix2D(m_Size, m_Offset, m_Scale, m_Octaves, m_Persistence, m_Lacunarity, m_Seed);
-            var colourMatrix = new Color[m_Size.x * m_Size.y];
+            var heightMap = Noise.GetMatrix2D(m_Size, m_Offset, m_Scale, m_Octaves, m_Persistence, m_Lacunarity, m_Seed);
+
+            var mesh = MeshHandler.CreateMesh(heightMap, m_HeightMultiplier);
+            MapMeshFilter.sharedMesh?.Clear();
+            MapMeshFilter.sharedMesh = mesh;
+
+
+            m_Texture = new Texture2D(m_Size.x, m_Size.y);
+            var colorMap = new Color[m_Size.x * m_Size.y];
 
             for (int y = 0; y < m_Size.y; y++)
             {
@@ -175,106 +190,59 @@ namespace App.Map
                 {
                     foreach (var r in m_Regions)
                     {
-                        if (noiseHeights[x, y] <= r.Height)
+                        if (heightMap[x, y] <= r.Height)
                         {
-                            colourMatrix[y * m_Size.x + x] = r.Color;
+                            colorMap[y * m_Size.x + x] = r.Color;
                             break;
                         }
                     }
                 }
             }
 
-            m_Texture.SetPixels(colourMatrix);
+
+            m_Texture.SetPixels(colorMap);
             m_Texture.Apply();
             m_Texture.filterMode = FilterMode.Point;
             m_Texture.wrapMode = TextureWrapMode.Clamp;
 
-            Renderer.sharedMaterial.mainTexture = m_Texture;
-            Obj.transform.localScale = new Vector3(m_Size.x, 1, m_Size.y);
-            Renderer.enabled = true;
+
+            MapMeshRenderer.sharedMaterial.mainTexture = m_Texture;
+            //Obj.transform.localScale = new Vector3(m_Size.x, 1, m_Size.y);
+            MapMeshRenderer.enabled = true;
         }
 
         private void GenerateMesh()
         {
-            Renderer.enabled = true;
+            MapMeshRenderer.enabled = true;
 
-            //Filter.mesh.Clear();
-            var noiseHeights = Noise.GetMatrix2D(m_Size, m_Offset, m_Scale, m_Octaves, m_Persistence, m_Lacunarity, m_Seed);
-            var width = noiseHeights.GetLength(0);
-            var height = noiseHeights.GetLength(1);
+            var heightMap = Noise.GetMatrix2D(m_Size, m_Offset, m_Scale, m_Octaves, m_Persistence, m_Lacunarity, m_Seed);
 
-            m_Vertices = new Vector3[width * height];
-            m_UVs = new Vector2[width * height];
-            m_Triangles = new int[(width - 1) * (height - 1) * 6];
-
-            var vert = 0;
-            var tris = 0;
-
-            for (int i = 0, z = 0; z < height; z++)
-            {
-                for (int x = 0; x < width; x++)
-                {
-                    m_Vertices[i] = new Vector3(x, noiseHeights[x, z], z);
-                    m_UVs[i] = new Vector2(x / (float)width, z / (float)height);
-                    i++;
-
-                    if (x < width - 1 && z < height - 1)
-                    {
-                        m_Triangles[tris + 0] = vert + 0;
-                        m_Triangles[tris + 1] = vert + width + 1;
-                        m_Triangles[tris + 2] = vert + width;
-                        m_Triangles[tris + 3] = vert + width + 1;
-                        m_Triangles[tris + 4] = vert + 0;
-                        m_Triangles[tris + 5] = vert + width + 1;
-
-                    }
-
-                    vert++;
-                    tris += 6;
-                }
-
-                vert++;
-            }
+            var mesh = MeshHandler.CreateMesh(heightMap, m_HeightMultiplier);
+            MapMeshFilter.sharedMesh?.Clear();
+            MapMeshFilter.sharedMesh = mesh;
 
 
-            var mesh = new Mesh();
-            mesh.name = "Custom mesh";
-            mesh.vertices = m_Vertices;
-            mesh.triangles = m_Triangles;
-            mesh.uv = m_UVs;
-            mesh.RecalculateNormals();
-            Filter.mesh = mesh;
+            m_Texture = new Texture2D(m_Size.x, m_Size.y);
+            var colorMap = new Color[m_Size.x * m_Size.y];
+
+            for (int y = 0; y < m_Size.y; y++)
+                for (int x = 0; x < m_Size.x; x++)
+                    colorMap[y * m_Size.x + x] = Color.Lerp(Color.black, Color.white, heightMap[x, y]);
 
 
-            /*
-            var terrainData = new TerrainData();
-            m_Resolution = terrainData.heightmapResolution;
-
-            terrainData.size = new Vector3(m_Width, 100, m_Height);
-            terrainData.SetHeights(0, 0, GetHights());
+            m_Texture.SetPixels(colorMap);
+            m_Texture.Apply();
+            m_Texture.filterMode = FilterMode.Point;
+            m_Texture.wrapMode = TextureWrapMode.Clamp;
 
 
-
-            if (m_Terrarian == null)
-            {
-                m_Terrarian = Terrain.CreateTerrainGameObject(terrainData).GetComponent<Terrain>();
-                m_Terrarian.transform.parent = gameObject.transform;
-                m_Terrarian.transform.position = Vector3.zero;
-            }
-            else
-                m_Terrarian.terrainData = terrainData;
-
-            Terrarian.gameObject.SetActive(true);
-
-            */
-            //m_terrainHeights = new float[m_heightMapSize, m_heightMapSize];
+            MapMeshRenderer.sharedMaterial.mainTexture = m_Texture;
+            //Obj.transform.localScale = new Vector3(m_Size.x, 1, m_Size.y);
+            MapMeshRenderer.enabled = true;
 
         }
 
-
-
     }
-
 
     [Serializable]
     public struct RegionInfo
@@ -290,5 +258,4 @@ namespace App.Map
             Color = color;
         }
     }
-
 }

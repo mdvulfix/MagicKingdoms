@@ -8,7 +8,7 @@ namespace Core.Map
     public class Perlin : NoiseModel, INoise
     {
 
-        protected override float Noise2D(float x, float y)
+        public override float Noise2D(float x, float y)
             => Mathf.PerlinNoise(x, y);
 
     }

@@ -5,7 +5,7 @@ using System.Collections.Generic;
 public class InfiniteTerrain : MonoBehaviour
 {
 
-    bool terrainIsFlushed = true;
+    //bool terrainIsFlushed = true;
 
     public static float waterHeight = 50;
     public static float m_landScapeSize = 100;

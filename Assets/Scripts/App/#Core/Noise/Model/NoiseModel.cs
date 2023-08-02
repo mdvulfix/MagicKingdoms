@@ -13,15 +13,15 @@ namespace Core
 
 
             var random = new System.Random(seed);
-            var octaveOffset = new Vector2[octave];
-            var xOffset = 0.0f;
-            var yOffset = 0.0f;
+            var offsets = new Vector2[octave];
+            var xo = 0.0f;
+            var yo = 0.0f;
 
             for (int i = 0; i < octave; i++)
             {
-                xOffset = random.Next(-100000, 100000) + offset.x;
-                yOffset = random.Next(-100000, 100000) + offset.y;
-                octaveOffset[i] = new Vector2(xOffset, yOffset);
+                xo = random.Next(-100000, 100000) + offset.x;
+                yo = random.Next(-100000, 100000) + offset.y;
+                offsets[i] = new Vector2(xo, yo);
             }
 
             var minHeight = float.MaxValue;
@@ -33,20 +33,21 @@ namespace Core
             {
                 for (int x = 0; x < size.x; x++)
                 {
-                    var xCoord = 0.0f;
-                    var yCoord = 0.0f;
+                    var xv = 0.0f;
+                    var yv = 0.0f;
                     var height = 0.0f;
 
-                    var amplitude = 1.0f;
+                    var amplitude = 2.0f;
                     var frequency = 1.0f;
 
 
                     for (int i = 0; i < octave; i++)
                     {
-                        xCoord = (x - size.x / 2) / scale * frequency + octaveOffset[i].x;
-                        yCoord = (y - size.y / 2) / scale * frequency + octaveOffset[i].y;
+                        xv = ((x - size.x / 2) / scale + offsets[i].x) * frequency;
+                        yv = ((y - size.y / 2) / scale + offsets[i].y) * frequency;
 
-                        height += (Noise2D(xCoord, yCoord) * 2 - 1) * amplitude;
+
+                        height += Noise2D(xv, yv) * amplitude;
 
                         amplitude *= persistence;
                         frequency *= lacunarity;
@@ -71,8 +72,8 @@ namespace Core
         }
 
 
-        protected virtual float Noise2D(float x, float y) { return 0.0f; }
-        protected virtual float Noise3D(float x, float y, float z) { return 0.0f; }
-        protected virtual float Noise4D(float x, float y, float z, float a) { return 0.0f; }
+        public virtual float Noise2D(float x, float y) { return 0.0f; }
+        public virtual float Noise3D(float x, float y, float z) { return 0.0f; }
+        public virtual float Noise4D(float x, float y, float z, float a) { return 0.0f; }
     }
 }

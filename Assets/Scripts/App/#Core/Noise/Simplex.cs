@@ -70,10 +70,10 @@ namespace Core
             return seed;
         }
 
-        protected override float Noise2D(float x, float y)
+        public override float Noise2D(float x, float y)
             => Noise3D(x, y, 0.0f);
 
-        protected override float Noise3D(float x, float y, float z)
+        public override float Noise3D(float x, float y, float z)
         {
             s = (x + y + z) * onethird;
             i = Fastfloor(x + s);
