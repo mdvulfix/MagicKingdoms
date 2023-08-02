@@ -11,13 +11,11 @@ namespace App.Map
     public class MapController : MonoBehaviour
     {
 
-
-
         [Header("Config")]
         private MapConfig m_Config;
 
         [Header("Map")]
-        [SerializeField] private Map m_Map;
+        [SerializeField] private MapDefault m_Map;
         [SerializeField] private MapDisplayMode m_DisplayMode = MapDisplayMode.Noise;
         private MapDisplayMode DisplayMode =>
             m_DisplayMode ==
@@ -34,7 +32,7 @@ namespace App.Map
         [SerializeField] private NoiseModel m_Noise;
         [SerializeField] private int m_Seed = 0;
 
-        [Range(1, 100)]
+        [Range(1, 256)]
         [SerializeField] private float m_Scale = 20f;
 
         [Range(1, 6)]
@@ -57,7 +55,7 @@ namespace App.Map
 
             m_Config = new MapConfig((INoise)m_Noise, m_Size, m_Offset, m_Scale, m_Seed, m_Octaves, m_Persistence, m_Lacunarity);
 
-            m_Map = m_Map ?? throw new Exception("Map is not assigned!");
+            m_Map = m_Map ??= GetComponent<MapDefault>();
             m_Map.Init(m_Config);
         }
 
@@ -75,6 +73,11 @@ namespace App.Map
             if (m_Octaves < 1) m_Octaves = 1;
             if (m_Scale < 0) m_Scale = 0.001f;
 
+        }
+
+        private void Update()
+        {
+            MapDisplay();
         }
 
 

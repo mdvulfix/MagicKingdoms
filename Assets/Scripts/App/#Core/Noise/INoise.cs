@@ -4,7 +4,7 @@ namespace Core
 {
     public interface INoise
     {
-        float[,] GetMatrix2D(Vector2Int size, Vector2 offset, float scale, int octaves, float persistence, float lacunarity, int seed);
+        float[,] GetMatrix2D(Vector2Int size, Vector2 offset, float scale, int seed, int octaves, float persistence, float lacunarity);
 
         float Noise2D(float x, float y);
         float Noise3D(float x, float y, float z);

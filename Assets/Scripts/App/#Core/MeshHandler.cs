@@ -54,7 +54,7 @@ public static class MeshHandler
         return mesh;
     }
 
-    public static Mesh CreateMesh(float[,] heightMap, float heightMultiplier = 1f)
+    public static Mesh CreateMesh(float[,] heightMap, AnimationCurve curve, float heightMultiplier = 1f)
     {
 
         var width = heightMap.GetLength(0);
@@ -67,7 +67,7 @@ public static class MeshHandler
         var vList = new List<Vector3>(numVert);
         for (int z = 0; z < length; z++)
             for (int x = 0; x < width; x++)
-                vList.Add(new Vector3(x, heightMap[x, z] * heightMultiplier, z));
+                vList.Add(new Vector3(x, curve.Evaluate(heightMap[x, z]) * heightMultiplier, z));
 
 
 

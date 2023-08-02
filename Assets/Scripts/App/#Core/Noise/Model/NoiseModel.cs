@@ -7,7 +7,7 @@ namespace Core
     public abstract class NoiseModel : ScriptableObject
     {
 
-        public virtual float[,] GetMatrix2D(Vector2Int size, Vector2 offset, float scale, int octave, float persistence, float lacunarity, int seed)
+        public virtual float[,] GetMatrix2D(Vector2Int size, Vector2 offset, float scale, int seed, int octave, float persistence, float lacunarity)
         {
             float[,] matrix = new float[size.x, size.y];
 
@@ -37,7 +37,7 @@ namespace Core
                     var yv = 0.0f;
                     var height = 0.0f;
 
-                    var amplitude = 2.0f;
+                    var amplitude = 1.0f;
                     var frequency = 1.0f;
 
 

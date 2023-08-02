@@ -15,8 +15,6 @@ namespace Core.Map
         public virtual void Init(params object[] args)
             => m_isInitialized = true;
 
-
-        public abstract void DrawTexture();
         public abstract void Display(MapDisplayMode mode);
         public abstract void Close();
 
