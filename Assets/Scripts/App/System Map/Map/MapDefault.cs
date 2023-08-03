@@ -40,8 +40,8 @@ namespace App.Map
         [SerializeField] private float m_HeightMultiplier;
 
 
-        private Vector2Int m_Size;
-        private Vector2 m_Offset;
+        [SerializeField] private Vector2Int m_Size;
+        [SerializeField] private Vector2 m_Offset;
         private int m_Seed;
         private float m_Scale;
         private int m_Octaves;
@@ -221,7 +221,7 @@ namespace App.Map
 
 
 
-        private void Update()
+        private void Start()
         {
             Display(MapDisplayMode.Color);
         }

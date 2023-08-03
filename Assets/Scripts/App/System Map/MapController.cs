@@ -73,6 +73,7 @@ namespace App.Map
             if (m_Octaves < 1) m_Octaves = 1;
             if (m_Scale < 0) m_Scale = 0.001f;
 
+
         }
 
         private void Update()

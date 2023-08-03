@@ -1,27 +1,27 @@
 using UnityEngine;
 using App.Map;
+using Core.Map;
 
 #if UNITY_EDITOR
 using UnityEditor;
 
-
-[CustomEditor(typeof(MapController))]
-public class EditorSceneController : Editor
+[CustomEditor(typeof(MapDefault))]
+public class EditorMap : Editor
 {
 
-    private MapController m_Controller => (MapController)target;
+    private MapDefault Map => (MapDefault)target;
 
 
     public override void OnInspectorGUI()
     {
-        var instance = (MapController)target;
+        var instance = (MapDefault)target;
 
         var isUpdate = DrawDefaultInspector();
 
-        if (m_Controller.AutoUpdate && isUpdate)
+        if (isUpdate)
             MapDisplay();
 
-        if (GUILayout.Button("Generate"))
+        if (GUILayout.Button("Update"))
             MapDisplay();
 
 
@@ -35,10 +35,11 @@ public class EditorSceneController : Editor
 
     private void MapDisplay()
     {
-        m_Controller.Setup();
-        m_Controller.MapDisplay();
+        Map.Display(MapDisplayMode.Color);
     }
 
 }
+
+
 
 #endif

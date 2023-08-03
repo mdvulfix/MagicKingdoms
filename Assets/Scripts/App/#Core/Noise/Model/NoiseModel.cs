@@ -4,10 +4,10 @@ using UnityEngine;
 namespace Core
 {
 
-    public abstract class NoiseModel : ScriptableObject
+    public abstract class NoiseModel
     {
 
-        public virtual float[,] GetMatrix2D(Vector2Int size, Vector2 offset, float scale, int seed, int octave, float persistence, float lacunarity)
+        public virtual float[,] GetMatrix2D(Vector2Int size, Vector2 offset, float scale, int seed = 0, int octave = 4, float persistence = 0.5f, float lacunarity = 2f)
         {
             float[,] matrix = new float[size.x, size.y];
 

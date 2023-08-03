@@ -7,7 +7,7 @@ using UnityEngine;
 namespace Core
 {
 
-    [CreateAssetMenu(fileName = "Simplex", menuName = "Noise/Simplex", order = 2)]
+    //[CreateAssetMenu(fileName = "Simplex", menuName = "Noise/Simplex", order = 2)]
     public class Simplex : NoiseModel, INoise
     {
 
