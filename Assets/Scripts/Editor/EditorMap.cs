@@ -19,23 +19,39 @@ public class EditorMap : Editor
         var isUpdate = DrawDefaultInspector();
 
         if (isUpdate)
-            MapDisplay();
+            Map.DisplayColorMap();
 
-        if (GUILayout.Button("Update"))
-            MapDisplay();
+        if (GUILayout.Button("Noise"))
+            DisplayNoiseMap();
 
+        if (GUILayout.Button("Color"))
+            DisplayColorMap();
 
+        if (GUILayout.Button("Mesh"))
+            DisplayMesh();
     }
 
     private void OnEnable()
     {
-        MapDisplay();
+        DisplayMesh();
     }
 
-
-    private void MapDisplay()
+    private void DisplayNoiseMap()
     {
-        Map.Display(MapDisplayMode.Color);
+        Map.Init();
+        Map.DisplayNoiseMap();
+    }
+
+    private void DisplayColorMap()
+    {
+        Map.Init();
+        Map.DisplayColorMap();
+    }
+
+    private void DisplayMesh()
+    {
+        Map.Init();
+        Map.DisplayMesh();
     }
 
 }

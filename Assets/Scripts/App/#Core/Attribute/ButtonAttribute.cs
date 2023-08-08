@@ -7,13 +7,17 @@ namespace Core
     [AttributeUsage(AttributeTargets.Method, Inherited = true)]
     public class ButtonAttribute : DrawerAttribute
     {
-        public ButtonAttribute()
+        
+        private string m_FuncName;
+        
+        public ButtonAttribute(string funcName)
         {
-
+            m_FuncName = funcName;
         }
 
-        public ButtonAttribute(object instance, MethodInfo func)
+        public ButtonAttribute(string funcName, object instance, MethodInfo func)
         {
+            m_FuncName = funcName;
             Instance = instance;
             Func = func;
 
@@ -22,9 +26,9 @@ namespace Core
 
         public override DrawerAttribute Draw()
         {
-
-            GUILayout.Label("Cached attribute drawer... ");
-            if (GUILayout.Button("Click"))
+            GUILayout.Label("Custom attribute drawer");
+            
+            if (GUILayout.Button(m_FuncName))
             {
                 if (Instance == null)
                     throw new Exception("Target instance not set!");

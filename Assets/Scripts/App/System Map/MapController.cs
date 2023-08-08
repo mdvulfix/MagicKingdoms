@@ -16,20 +16,19 @@ namespace App.Map
 
         [Header("Map")]
         [SerializeField] private MapDefault m_Map;
-        [SerializeField] private MapDisplayMode m_DisplayMode = MapDisplayMode.Noise;
-        private MapDisplayMode DisplayMode =>
-            m_DisplayMode ==
-            MapDisplayMode.None ?
-            MapDisplayMode.Noise :
-            m_DisplayMode;
+        [SerializeField] private MapDisplayMode m_DisplayMode = MapDisplayMode.Mesh;
+
 
 
         [Header("Resolution")]
-        [SerializeField] private Vector2Int m_Size;
-        [SerializeField] private Vector2 m_Offset = Vector2.one;
+        [SerializeField] private int m_Width;
+        [SerializeField] private int m_Length;
+        [SerializeField] private float m_WidthOffset;
+        [SerializeField] private float m_LengthOffset;
+
+        private INoise m_Noise;
 
         [Header("Noise")]
-        [SerializeField] private NoiseModel m_Noise;
         [SerializeField] private int m_Seed = 0;
 
         [Range(1, 256)]
@@ -43,7 +42,8 @@ namespace App.Map
         [SerializeField] private float m_Lacunarity = 2f;
 
 
-
+        [SerializeField] private AnimationCurve m_Curve;
+        [SerializeField] private float m_HeightFactor;
 
 
         public bool AutoUpdate = true;
@@ -51,9 +51,23 @@ namespace App.Map
 
         public void Setup()
         {
-            //OnValidate();
 
-            m_Config = new MapConfig((INoise)m_Noise, m_Size, m_Offset, m_Scale, m_Seed, m_Octaves, m_Persistence, m_Lacunarity);
+            var noise = m_Noise ??= new Simplex();
+
+            m_Config = new MapConfig(m_Width,
+                                     m_Length,
+                                     m_WidthOffset,
+                                     m_LengthOffset,
+                                     noise,
+                                     m_Seed,
+                                     m_Scale,
+                                     m_Octaves,
+                                     m_Persistence,
+                                     m_Lacunarity,
+                                     m_HeightFactor,
+                                     m_Curve);
+
+
 
             m_Map = m_Map ??= GetComponent<MapDefault>();
             m_Map.Init(m_Config);
@@ -61,18 +75,33 @@ namespace App.Map
 
 
         public void MapDisplay()
-            => m_Map.Display(m_DisplayMode);
+        {
+            switch (m_DisplayMode)
+            {
+                case MapDisplayMode.Noise:
+                    m_Map.DisplayNoiseMap();
+                    break;
+
+                case MapDisplayMode.Color:
+                    m_Map.DisplayColorMap();
+                    break;
+
+                case MapDisplayMode.Mesh:
+                    m_Map.DisplayMesh();
+                    break;
+            }
+        }
+
 
 
 
 
         public void OnValidate()
         {
-            if (m_Size.x < 1) m_Size.x = 1;
-            if (m_Size.y < 1) m_Size.y = 1;
+            if (m_Width < 1) m_Width = 1;
+            if (m_Length < 1) m_Length = 1;
             if (m_Octaves < 1) m_Octaves = 1;
             if (m_Scale < 0) m_Scale = 0.001f;
-
 
         }
 
@@ -81,7 +110,6 @@ namespace App.Map
             MapDisplay();
         }
 
-
     }
-
 }
+

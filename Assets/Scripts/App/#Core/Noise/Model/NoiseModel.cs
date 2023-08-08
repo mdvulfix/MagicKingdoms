@@ -7,9 +7,9 @@ namespace Core
     public abstract class NoiseModel
     {
 
-        public virtual float[,] GetMatrix2D(Vector2Int size, Vector2 offset, float scale, int seed = 0, int octave = 4, float persistence = 0.5f, float lacunarity = 2f)
+        public virtual float[,] GetHeightMap2D(int width, int length, float widthOffset, float lengthOffset, float scale, int seed = 0, int octave = 4, float persistence = 0.5f, float lacunarity = 2f)
         {
-            float[,] matrix = new float[size.x, size.y];
+            float[,] map = new float[width, length];
 
 
             var random = new System.Random(seed);
@@ -19,8 +19,8 @@ namespace Core
 
             for (int i = 0; i < octave; i++)
             {
-                xo = random.Next(-100000, 100000) + offset.x;
-                yo = random.Next(-100000, 100000) + offset.y;
+                xo = random.Next(-100000, 100000) + widthOffset;
+                yo = random.Next(-100000, 100000) + lengthOffset;
                 offsets[i] = new Vector2(xo, yo);
             }
 
@@ -29,9 +29,9 @@ namespace Core
 
 
 
-            for (int y = 0; y < size.y; y++)
+            for (int y = 0; y < length; y++)
             {
-                for (int x = 0; x < size.x; x++)
+                for (int x = 0; x < width; x++)
                 {
                     var xv = 0.0f;
                     var yv = 0.0f;
@@ -43,8 +43,8 @@ namespace Core
 
                     for (int i = 0; i < octave; i++)
                     {
-                        xv = ((x - size.x / 2) / scale + offsets[i].x) * frequency;
-                        yv = ((y - size.y / 2) / scale + offsets[i].y) * frequency;
+                        xv = ((x - width / 2) / scale + offsets[i].x) * frequency;
+                        yv = ((y - length / 2) / scale + offsets[i].y) * frequency;
 
 
                         height += Noise2D(xv, yv) * amplitude;
@@ -59,16 +59,16 @@ namespace Core
                         minHeight = height;
 
 
-                    matrix[x, y] = height;
+                    map[x, y] = height;
                 }
             }
 
-            for (int y = 0; y < size.y; y++)
-                for (int x = 0; x < size.x; x++)
-                    matrix[x, y] = Mathf.InverseLerp(minHeight, maxHeight, matrix[x, y]);
+            for (int y = 0; y < length; y++)
+                for (int x = 0; x < width; x++)
+                    map[x, y] = Mathf.InverseLerp(minHeight, maxHeight, map[x, y]);
 
 
-            return matrix;
+            return map;
         }
 
 

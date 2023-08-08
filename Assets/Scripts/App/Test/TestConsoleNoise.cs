@@ -7,7 +7,7 @@ namespace Core.Test
 {
     [ExecuteAlways]
     [RequireComponent(typeof(MeshFilter)), RequireComponent(typeof(MeshRenderer))]
-    public class TestNoiseConsole : MonoBehaviour
+    public class TestConsoleNoise : MonoBehaviour
     {
 
         private GameObject m_Plane;
